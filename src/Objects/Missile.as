@@ -1,7 +1,8 @@
-package Objects 
+package objects 
 {
 	import flash.display.MovieClip;
 	import flash.geom.Point;
+	import game.Game;
 	/**
 	 * ...
 	 * @author Menno Jongejan
@@ -22,7 +23,7 @@ package Objects
 			addChild(movieClip);
 			this.scaleX = 0.25;
 			this.scaleY = 0.25;
-			speed = 20;
+			speed = 10;
 		}
 		public function Update():void
 		{
