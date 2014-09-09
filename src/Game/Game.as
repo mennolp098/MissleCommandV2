@@ -18,6 +18,7 @@ package game
 		private var _enemyMissiles:Array;
 		private var _closestDist:Number;
 		private var _explosions:Array;
+		
 		public static var instance:Game;
 		
 		public function Game() 
@@ -28,35 +29,38 @@ package game
 		
 		private function init(e:Event = null):void 
 		{
-			
+			//make the gamestage as instance so you can add in via child classes
 			instance = this;
+			
 			_playerMissiles = [];
 			_enemyMissiles = [];
 			_explosions = [];
 			
 			_allObjects = [_playerMissiles, _enemyMissiles, _explosions];
 			
-			
+			//create missles.
 			for (var i:int = 0; i < 45; i++) 
 			{
-				var randomX:Number = Math.random() * 500 + 100;
-				var newMissile:PlayerMissile = new PlayerMissile();
+				var randomX:Number = Math.random() * 500 + 100,
+					newMissile:PlayerMissile = new PlayerMissile();
+					
 				addChild(newMissile);
 				newMissile.x = randomX;
 				newMissile.y = 550;
 				_playerMissiles.push(newMissile);
 			}
-			addEventListener(Event.ENTER_FRAME, Loop);
-			stage.addEventListener(MouseEvent.CLICK, MouseClicked);
-			enemyAttack();
+			addEventListener(Event.ENTER_FRAME, loop);
+			stage.addEventListener(MouseEvent.CLICK, mouseClicked);
+			enemyAttack(30);
 		}
-		private function enemyAttack():void
+		private function enemyAttack(missiles:int):void
 		{
-			for (var i:int = 0; i < 30; i++) 
+			for (var i:int = 0; i < missiles; i++) 
 			{
-				var randomX:Number = Math.random() * 500 + 100;
-				var randomY:Number = Math.random() * -300 - 50;
-				var newMissile:EnemyMissile = new EnemyMissile();
+				var randomX:Number = Math.random() * 500 + 100,
+					randomY:Number = Math.random() * -750 - 50,
+					newMissile:EnemyMissile = new EnemyMissile();
+					
 				addChild(newMissile);
 				newMissile.x = randomX;
 				newMissile.y = randomY;
@@ -74,78 +78,72 @@ package game
 				newMissile.active = true;
 			}
 		}
-		private function Loop(e:Event):void 
+		private function loop(e:Event):void 
 		{
-			for( var i:int = _playerMissiles.length - 1; i >= 0; i-- )
+			checkArray(_playerMissiles, true);
+			checkArray(_enemyMissiles, true);
+			checkArray(_explosions, false);
+		}
+		private function checkArray(currentArray:Array,isMissile:Boolean):void
+		{
+			var arrayLength:int = currentArray.length;
+			var explosionLength:int = _explosions.length;
+			for( var i:int = arrayLength - 1; i >= 0; i-- )
 			{
-				_playerMissiles[i].Update();
-				if (_playerMissiles[i].removeable) 
+				currentArray[i].Update();
+				if (isMissile)
 				{
-					var explosion:Explosion;
-					explosion = new Explosion();
-					addChild(explosion);
-					explosion.x = _playerMissiles[i].x;
-					explosion.y = _playerMissiles[i].y;
-					_explosions.push(explosion);
-					
-					removeChild(_playerMissiles[i]);
-					_playerMissiles.splice(i, 1);
-				}
-				for (var k:int = _explosions.length - 1; k >= 0; k--) 
-				{
-					if (_explosions[k].hitTestObject(_playerMissiles[i]))
+					for (var j:int = 0; j < explosionLength; j++) 
 					{
-						_playerMissiles[i].removeable = true;
+						if (_explosions[j].hitTestObject(currentArray[i]))
+						{
+							currentArray[i].removeable = true;
+						}
 					}
 				}
-			}
-			for( var l:int = _enemyMissiles.length - 1; l >= 0; l-- )
-			{
-				_enemyMissiles[l].Update();
-				if (_enemyMissiles[l].removeable) 
+				if (currentArray[i].removeable) 
 				{
-					var explosion:Explosion;
-					explosion = new Explosion();
-					addChild(explosion);
-					explosion.x = _enemyMissiles[l].x;
-					explosion.y = _enemyMissiles[l].y;
-					_explosions.push(explosion);
-					
-					removeChild(_enemyMissiles[l]);
-					_enemyMissiles.splice(l, 1);
-				}
-				for (var z:int = _explosions.length - 1; z >= 0; z--) 
-				{
-					if (_explosions[z].hitTestObject(_enemyMissiles[l]))
+					if (isMissile)
 					{
-						_enemyMissiles[l].removeable = true;
+						createExplosion(currentArray[i].x, currentArray[i].y);
 					}
-				}
-			}
-			for( var j:int = _explosions.length - 1; j >= 0; j-- )
-			{
-				_explosions[j].Update();
-				if (_explosions[j].removeable)
-				{
-					removeChild(_explosions[j]);
-					_explosions.splice(j, 1);
+					
+					removeChild(currentArray[i]);
+					currentArray.splice(i, 1);
 				}
 			}
 		}
-		private function MouseClicked(e:MouseEvent):void 
+		private function createExplosion(x:int, y:int):void
 		{
+			var explosion:Explosion;
+			
+			explosion = new Explosion();
+			addChild(explosion);
+			explosion.x = x;
+			explosion.y = y;
+			_explosions.push(explosion);
+		}
+		private function mouseClicked(e:MouseEvent):void 
+		{
+			var closestMissile:PlayerMissile,
+				l:uint,
+				mousePoint:Point,
+				elementPoint:Point,
+				dist:Number;
+			
 			if (_playerMissiles.length > 0) 
 			{
-				var closestMissile:PlayerMissile = _playerMissiles[0];
+				closestMissile = _playerMissiles[0];
+				l = _playerMissiles.length;
 				
-				var l:int = _playerMissiles.length;
 				for (var i:int = 0; i < l; i++) 
 				{
 					if (!_playerMissiles[i].active)
 					{
-						var mousePoint:Point = new Point(e.stageX, e.stageY);
-						var elementPoint:Point = new Point(_playerMissiles[i].x,_playerMissiles[i].y);
-						var dist:Number = Point.distance(mousePoint, elementPoint);
+						mousePoint = new Point(e.stageX, e.stageY);
+						elementPoint = new Point(_playerMissiles[i].x,_playerMissiles[i].y);
+						dist = Point.distance(mousePoint, elementPoint);
+						
 						if (i == 0 || dist < _closestDist) 
 						{
 							_closestDist = dist;
