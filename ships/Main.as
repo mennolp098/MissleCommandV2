@@ -22,6 +22,7 @@
 		{
 			enemy.followHeroShip();
 			enemy.shoot();
+			enemy.useAbility();
 		}
 	}
 }

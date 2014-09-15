@@ -8,6 +8,7 @@ package{
 		private var _directionY	:	Number;
 		private var _damage		:	Number;
 		private var _speed		:	Number;
+		private var _ability	:   String;
 		
 		public function followHeroShip() : void
 		{
@@ -18,7 +19,12 @@ package{
 		{
 			trace(shipName + " attacks and does " + damage + " damage to hero");
 		}
-
+		
+		public function useAbility() : void
+		{
+			trace(shipName + " uses " + ability);
+		}
+		
 		public function get damage() : Number {
 			return _damage;
 		}
@@ -41,6 +47,14 @@ package{
 		
 		public function set speed(speed : Number) : void {
 			_speed = speed;
+		}
+		
+		public function get ability() : String {
+			return _ability;
+		}
+		
+		public function set ability(ability : String) : void {
+			_ability = ability;
 		}
 	}
 }

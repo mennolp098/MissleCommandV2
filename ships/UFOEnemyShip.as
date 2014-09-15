@@ -8,6 +8,7 @@ package{
 			shipName		=	"UFOEnemyShip";
 			damage		=	20;
 			speed 		=	10;
+			ability		=	"Double Shot";
 		}
 	}
 }

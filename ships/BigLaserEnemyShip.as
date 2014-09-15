@@ -12,6 +12,7 @@ package
 			shipName	=	"BigLaserEnemyShip";
 			damage		=	25;
 			speed		=	15;
+			ability		=   "Laser";
 		}
 		
 	}
