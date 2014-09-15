@@ -9,8 +9,9 @@ package
 		
 		public function BigLaserEnemyShip() 
 		{
-			shipName		=	"BigLaserEnemyShip";
+			shipName	=	"BigLaserEnemyShip";
 			damage		=	25;
+			speed		=	15;
 		}
 		
 	}

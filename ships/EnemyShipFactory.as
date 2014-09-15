@@ -32,7 +32,6 @@ package{
 			// we kunnen het ruimteschip nog wat basisinstellingen meegeven
 			// het voordeel dat we het hier doen is dat je het niet door je hele applicatie hebt staan
 			enemy.rotation = 10;
-			
 			return enemy;
 		}
 		

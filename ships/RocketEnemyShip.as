@@ -7,6 +7,7 @@ package {
 			
 			shipName		=	"RocketEnemyShip";
 			damage		=	10;
+			speed 		=	10;
 		}
 	}
 }
