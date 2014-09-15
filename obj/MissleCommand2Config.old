@@ -14,7 +14,7 @@
     </define>
     <define append="true">
       <name>CONFIG::timeStamp</name>
-      <value>'8-9-2014'</value>
+      <value>'15-9-2014'</value>
     </define>
     <define append="true">
       <name>CONFIG::air</name>
@@ -38,7 +38,7 @@
     </library-path>
   </compiler>
   <file-specs>
-    <path-element>D:\programmas\xampp\htdocs\school\jaar2\periode 1\Missle Command 2\MissleCommandV2\src\Main.as</path-element>
+    <path-element>D:\programmas\xampp\htdocs\school\jaar2\periode 1\Missle Command 2\MissleCommandV2\src\ships\Main.as</path-element>
   </file-specs>
   <default-background-color>#FFFFFF</default-background-color>
   <default-frame-rate>30</default-frame-rate>

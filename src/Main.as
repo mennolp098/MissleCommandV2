@@ -3,6 +3,7 @@ package
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import game.Game;
+	import ships.*;
 	
 	/**
 	 * ...
@@ -24,7 +25,5 @@ package
 			_game = new Game();
 			addChild(_game);
 		}
-		
 	}
-	
 }
