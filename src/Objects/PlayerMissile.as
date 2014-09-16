@@ -6,10 +6,8 @@ package objects
 	 */
 	public class PlayerMissile extends Missile
 	{
-		
 		public function PlayerMissile() 
 		{
-			
 			movieClip = new MissileArt();
 			super();
 		}

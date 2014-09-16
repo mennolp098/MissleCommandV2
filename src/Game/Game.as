@@ -11,6 +11,7 @@ package game
 	import objects.Explosion;
 	import objects.Missile;
 	import objects.PlayerMissile;
+	import objects.MissileFactory;
 	/**
 	 * ...
 	 * @author Menno Jongejan
@@ -24,8 +25,6 @@ package game
 		private var _explosions:Array;
 		private var _citys:Array;
 		
-		public static var instance:Game;
-		
 		public function Game() 
 		{
 			if (stage) init();
@@ -34,8 +33,7 @@ package game
 		
 		private function init(e:Event = null):void 
 		{
-			//make the gamestage as instance so you can add in via child classes
-			instance = this;
+			var missileFactory:MissileFactory = new MissileFactory();
 			
 			_playerMissiles = [];
 			_enemyMissiles = [];
@@ -46,8 +44,10 @@ package game
 			
 			addEventListener(Event.ENTER_FRAME, loop);
 			stage.addEventListener(MouseEvent.CLICK, mouseClicked);
-			createMissiles(30, EnemyMissile, _enemyMissiles);
-			createMissiles(45, PlayerMissile, _playerMissiles);
+			
+			_enemyMissiles = missileFactory.createMissiles(30, MissileFactory.ENEMY_MISSILE, this);
+			_playerMissiles = missileFactory.createMissiles(45, MissileFactory.FRIENDLY_MISSILE, this);
+			
 			createCitys(4);
 		}
 		private function createCitys(citys:int):void
@@ -59,61 +59,6 @@ package game
 				city.x = 200 * i + 100;
 				city.y = 500;
 				_citys.push(city);
-			}
-		}
-		//function to create missiles.
-		private function createMissiles(missiles:int,MissileClass:Class,missileArray:Array):void
-		{
-			for (var i:int = 0; i < missiles; i++) 
-			{
-				var randomX:Number = Math.random() * 500 + 100,
-					randomY:Number = Math.random() * -2000 - 50,
-					newMissile:Missile = new MissileClass();
-					
-				addChild(newMissile);
-				newMissile.x = randomX;
-				newMissile.y = randomY;
-				missileArray.push(newMissile);
-				if (missileArray == _enemyMissiles)
-				{
-					var random:uint = Math.random() * 6;
-					switch(random) {
-						case 0:
-							newMissile.movePoint.x = 100;
-							break;
-						case 1:
-							newMissile.movePoint.x = 300;
-							break;
-						case 2:
-							newMissile.movePoint.x = 225;
-							break;
-						case 3:
-							newMissile.movePoint.x = 500;
-							break;
-						case 4:
-							newMissile.movePoint.x = 375;
-							break;
-						case 5:
-							newMissile.movePoint.x = 700;
-							break;
-						default:
-							newMissile.movePoint.x = 100;
-							break;
-					}
-					newMissile.movePoint.y = 500;
-					newMissile.active = true;
-				} else {
-					if (i <= 15)
-					{
-						newMissile.x = 175 + 5*i;
-					} else if ( i <= 30)
-					{
-						newMissile.x = 275 + 5*i;
-					} else {
-						newMissile.x = 375 + 5*i;
-					}
-					newMissile.y = 550;
-				}
 			}
 		}
 		private function loop(e:Event):void 
