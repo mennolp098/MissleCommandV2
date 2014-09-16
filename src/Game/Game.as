@@ -24,6 +24,7 @@ package game
 		private var _closestDist:Number;
 		private var _explosions:Array;
 		private var _citys:Array;
+		private var _background:Background;
 		
 		public function Game() 
 		{
@@ -35,6 +36,7 @@ package game
 		{
 			var missileFactory:MissileFactory = new MissileFactory();
 			
+			_background = new Background();
 			_playerMissiles = [];
 			_enemyMissiles = [];
 			_explosions = [];
@@ -44,6 +46,8 @@ package game
 			
 			addEventListener(Event.ENTER_FRAME, loop);
 			stage.addEventListener(MouseEvent.CLICK, mouseClicked);
+			
+			addChild(_background);
 			
 			_enemyMissiles = missileFactory.createMissiles(30, MissileFactory.ENEMY_MISSILE, this);
 			_playerMissiles = missileFactory.createMissiles(45, MissileFactory.FRIENDLY_MISSILE, this);
