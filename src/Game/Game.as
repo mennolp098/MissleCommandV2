@@ -7,11 +7,11 @@ package game
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
 	import objects.City;
-	import objects.EnemyMissile;
+	import objects.missiles.EnemyMissile;
 	import objects.Explosion;
-	import objects.Missile;
-	import objects.PlayerMissile;
-	import objects.MissileFactory;
+	import objects.missiles.Missile;
+	import objects.missiles.PlayerMissile;
+	import objects.missiles.MissileFactory;
 	/**
 	 * ...
 	 * @author Menno Jongejan
@@ -63,19 +63,19 @@ package game
 		}
 		private function loop(e:Event):void 
 		{
-			checkArray(_playerMissiles, true, true);
-			checkArray(_enemyMissiles, true, true);
-			checkArray(_explosions, false, false);
-			checkArray(_citys, false, true);
+			checkArray(_playerMissiles, true, true, true);
+			checkArray(_enemyMissiles, true, true, true);
+			checkArray(_explosions, false, false, true);
+			checkArray(_citys, false, true, false);
 		}
 		//check arrays for hittest etc.
-		private function checkArray(currentArray:Array,explodeAble:Boolean,hitAble:Boolean):void
+		private function checkArray(currentArray:Array, explodeAble:Boolean, hitAble:Boolean, updateAble:Boolean ):void
 		{
 			var arrayLength:int = currentArray.length;
 			var explosionLength:int = _explosions.length;
 			for( var i:int = arrayLength - 1; i >= 0; i-- )
 			{
-				if (currentArray != _citys)
+				if (updateAble)
 				{
 					currentArray[i].Update();
 				}

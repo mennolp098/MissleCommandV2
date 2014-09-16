@@ -1,4 +1,4 @@
-package objects 
+package objects.missiles 
 {
 	import flash.display.DisplayObjectContainer;
 	import game.Game;
