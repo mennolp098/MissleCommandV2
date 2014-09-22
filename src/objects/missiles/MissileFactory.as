@@ -28,20 +28,20 @@ package objects.missiles
 			return missile;
 		}
 		//functie om missiles in de game instance te zetten
-		public function createMissiles(amount:int, type:String, targetContainer:DisplayObjectContainer):Array
+		public function createMissiles(	amount:int, missileType:String, targetContainer:DisplayObjectContainer	):Array
 		{
 			var missileArray:Array = [];
 			for (var i:int = 0; i < amount; i++) 
 			{
 				var randomX:Number = Math.random() * 500 + 100,
 					randomY:Number = Math.random() * -2000 - 50,
-					newMissile:Missile = makeMissile(type);
+					newMissile:Missile = makeMissile(missileType);
 					
 				targetContainer.addChild(newMissile);
 				newMissile.x = randomX;
 				newMissile.y = randomY;
 				missileArray.push(newMissile);
-				if (type == ENEMY_MISSILE)
+				if (missileType == ENEMY_MISSILE)
 				{
 					var random:uint = Math.random() * 6;
 					switch(random) {

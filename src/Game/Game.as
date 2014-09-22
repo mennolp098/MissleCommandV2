@@ -7,9 +7,11 @@ package game
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
 	import objects.City;
+	import objects.CityFactory;
 	import objects.missiles.EnemyMissile;
 	import objects.Explosion;
 	import objects.missiles.Missile;
+	import objects.missiles.MissileManager;
 	import objects.missiles.PlayerMissile;
 	import objects.missiles.MissileFactory;
 	/**
@@ -21,7 +23,6 @@ package game
 		private var _allObjects:Array;
 		private var _playerMissiles:Array;
 		private var _enemyMissiles:Array;
-		private var _closestDist:Number;
 		private var _explosions:Array;
 		private var _citys:Array;
 		private var _background:Background;
@@ -35,6 +36,7 @@ package game
 		private function init(e:Event = null):void 
 		{
 			var missileFactory:MissileFactory = new MissileFactory();
+			var cityFactory:CityFactory = new CityFactory();
 			
 			_background = new Background();
 			_playerMissiles = [];
@@ -51,19 +53,8 @@ package game
 			
 			_enemyMissiles = missileFactory.createMissiles(30, MissileFactory.ENEMY_MISSILE, this);
 			_playerMissiles = missileFactory.createMissiles(45, MissileFactory.FRIENDLY_MISSILE, this);
+			_citys = cityFactory.createCitys(4, this);
 			
-			createCitys(4);
-		}
-		private function createCitys(citys:int):void
-		{
-			for (var i:int = 0; i < citys; i++) 
-			{
-				var city:City = new City();
-				addChild(city);
-				city.x = 200 * i + 100;
-				city.y = 500;
-				_citys.push(city);
-			}
 		}
 		private function loop(e:Event):void 
 		{
@@ -117,49 +108,8 @@ package game
 		}
 		private function mouseClicked(e:MouseEvent):void 
 		{
-			var closestMissile:PlayerMissile;
-			closestMissile = getClosestMissile(e.stageX,e.stageY);
-			if (_playerMissiles.length > 0) 
-			{
-				if (!closestMissile.active)
-				{
-					closestMissile.movePoint.x = e.stageX;
-					closestMissile.movePoint.y = e.stageY;
-					closestMissile.active = true;
-				}
-			}
-		}
-		//return the closest missile
-		private function getClosestMissile(x:Number,y:Number):PlayerMissile
-		{
-			var closestMissile:PlayerMissile,
-				l:uint,
-				mousePoint:Point,
-				elementPoint:Point,
-				dist:Number;
-			
-			if (_playerMissiles.length > 0) 
-			{
-				closestMissile = _playerMissiles[0];
-				l = _playerMissiles.length;
-				
-				for (var i:int = 0; i < l; i++) 
-				{
-					if (!_playerMissiles[i].active)
-					{
-						mousePoint = new Point(x, y);
-						elementPoint = new Point(_playerMissiles[i].x,_playerMissiles[i].y);
-						dist = Point.distance(mousePoint, elementPoint);
-						
-						if (i == 0 || dist < _closestDist) 
-						{
-							_closestDist = dist;
-							closestMissile = _playerMissiles[i];
-						}
-					}
-				}
-			}
-			return closestMissile;
+			var missileManager:MissileManager = new MissileManager();
+			missileManager.fireMissile(e.stageX, e.stageY, _playerMissiles);
 		}
 	}
 }
