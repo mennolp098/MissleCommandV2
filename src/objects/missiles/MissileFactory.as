@@ -12,7 +12,7 @@ package objects.missiles
 		public static const FRIENDLY_MISSILE : String	=	"friendlyMissile";
 		public static const ENEMY_MISSILE : String	=	"enemyMissile";
 		
-		private function makeMissile( type : String ) : Missile
+		private static function makeMissile( type : String ) : Missile
 		{
 			// lokale variabele waar we het nieuwe missile in opslaan
 			var missile : Missile;
@@ -28,7 +28,7 @@ package objects.missiles
 			return missile;
 		}
 		//functie om missiles in de game instance te zetten
-		public function createMissiles(	amount:int, missileType:String, targetContainer:DisplayObjectContainer	):Array
+		public static function createMissiles(	amount:int, missileType:String, targetContainer:DisplayObjectContainer	):Array
 		{
 			var missileArray:Array = [];
 			for (var i:int = 0; i < amount; i++) 

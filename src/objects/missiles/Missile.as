@@ -17,6 +17,7 @@ package objects.missiles
 		public var active:Boolean;
 		public function Missile() 
 		{
+			
 			movePoint = new Point(0, 0);
 			
 			addChild(movieClip);
@@ -29,6 +30,7 @@ package objects.missiles
 			if (active)
 			{
 				var pos:Point = new Point(this.x, this.y),
+					oldPos:Point = new Point(this.x, this.y),
 					t:Point = new Point(movePoint.x, movePoint.y),
 					v:Point = new Point(t.x - pos.x, t.y - pos.y),
 					distance:Number = Math.sqrt(v.x * v.x + v.y * v.y),
@@ -44,7 +46,7 @@ package objects.missiles
 				dir = Math.atan2(this.y - movePoint.y, this.x - movePoint.x);
 				this.rotation = dir * 180 / Math.PI + 270;
 				
-				if (distance < speed)
+				if (distance < speed || this.y == movePoint.y)
 				{
 					Explode();
 				}

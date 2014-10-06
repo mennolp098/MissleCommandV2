@@ -13,7 +13,5 @@ package objects.missiles
 			super();
 			speed = 3;
 		}
-		
 	}
-
 }
