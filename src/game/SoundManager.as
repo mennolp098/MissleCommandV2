@@ -13,16 +13,18 @@ package game
 		public static const SOUND_EXPLOSION : String	=	"soundExplosion";
 		
 		public static var soundChannel:SoundChannel;
+		private var backgroundSoundChannel:SoundChannel;
 		
 		private var _backgroundMusic:Sound;
 		public function SoundManager() 
 		{
 			soundChannel = new SoundChannel();
+			backgroundSoundChannel = new SoundChannel();
 			
 			var backgroundReq:URLRequest = new URLRequest("sounds/backgroundMusic.mp3");
 			_backgroundMusic = new Sound(backgroundReq);
 			
-			soundChannel = _backgroundMusic.play();
+			backgroundSoundChannel = _backgroundMusic.play();
 		}
 		public static function playSound(sound:String):void
 		{
@@ -38,6 +40,10 @@ package game
 				soundToPlay = new Sound(explosionReq);
 			}
 			soundChannel = soundToPlay.play();
+		}
+		public function stopBackgroundMusic():void
+		{
+			backgroundSoundChannel.stop();
 		}
 	}
 }

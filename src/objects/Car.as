@@ -20,6 +20,7 @@ package objects
 			}
 			this.scaleX = this.scaleX * random;
 			speed = speed * random;
+			this.gotoAndStop(Math.random() * 10);
 		}
 		public function Update():void
 		{

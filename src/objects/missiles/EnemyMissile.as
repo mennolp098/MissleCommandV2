@@ -9,9 +9,10 @@ package objects.missiles
 		
 		public function EnemyMissile() 
 		{
-			movieClip = new MissileArt();
+			movieClip = new EnemyMissileArt();
 			super();
 			speed = 3;
+			score = 10;
 		}
 	}
 }

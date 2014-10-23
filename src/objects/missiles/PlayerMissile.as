@@ -10,6 +10,7 @@ package objects.missiles
 		{
 			movieClip = new MissileArt();
 			super();
+			score = 0;
 		}
 	}
 }

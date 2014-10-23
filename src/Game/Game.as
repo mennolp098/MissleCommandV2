@@ -6,11 +6,14 @@ package game
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
+	import flash.net.SharedObject;
+	import hud.Hud;
 	import objects.CarFactory;
 	import objects.City;
 	import objects.CityFactory;
 	import objects.ExplosionFactory;
 	import objects.Explosion;
+	import objects.missiles.EnemyMissileFactory;
 	import objects.missiles.MissileManager;
 	import objects.missiles.MissileFactory;
 	/**
@@ -33,6 +36,9 @@ package game
 		private var _cars:Array;
 		private var _missileManager:MissileManager;
 		private var _soundManager:SoundManager;
+		private var _level:Array;
+		private var _hud:Hud;
+		private var _loseMenu:LoseMenu;
 		public function Game() 
 		{
 			if (stage) init();
@@ -47,6 +53,8 @@ package game
 			_background = new Background();
 			_missileManager = new MissileManager();
 			_soundManager = new SoundManager();
+			_loseMenu = new LoseMenu();
+			_hud = new Hud();
 			_playerMissiles = [];
 			_enemyMissiles = [];
 			_explosions = [];
@@ -57,69 +65,152 @@ package game
 			
 			_allObjects = [_playerMissiles, _enemyMissiles, _explosions, _citys, _cars];
 			
-			addEventListener(Event.ENTER_FRAME, loop);
-			stage.addEventListener(MouseEvent.CLICK, mouseClicked);
-			
 			addChild(_background);
+			addChild(_hud);
+			addChild(_loseMenu);
 			
+			_loseMenu.visible = false;
+			
+			var missileFactory:MissileFactory = new MissileFactory;
+			var enemyMissileFactory:EnemyMissileFactory = new EnemyMissileFactory;
+			_enemyMissiles = enemyMissileFactory.createMissiles(25, EnemyMissileFactory.NORMAL_MISSILE, this);
+			_playerMissiles = missileFactory.createMissiles(45, MissileFactory.FRIENDLY_MISSILE, this);
 			_cars = _carFactory.createCars(25, this);
-			_enemyMissiles = MissileFactory.createMissiles(30, MissileFactory.ENEMY_MISSILE, this);
-			_playerMissiles = MissileFactory.createMissiles(45, MissileFactory.FRIENDLY_MISSILE, this);
 			_citys = _cityFactory.createCitys(4, this);
 			
+			addEventListener(Event.ENTER_FRAME, loop);
+			stage.addEventListener(MouseEvent.CLICK, mouseClicked);
 		}
 		private function loop(e:Event):void 
 		{
-			checkArray(_playerMissiles, true, true, true);
-			checkArray(_enemyMissiles, true, true, true);
-			checkArray(_explosions, false, false, true);
-			checkArray(_citys, false, true, false);
-			checkArray(_cars, false, false, true);
+			collisionHitTest(_cars);
+			collisionHitTest(_citys);
+			collisionHitTest(_playerMissiles);
+			collisionHitTest(_enemyMissiles);
+			
+			updateArray(_playerMissiles);
+			updateArray(_enemyMissiles);
+			updateArray(_explosions);
+			updateArray(_cars);
+			
+			checkRemoveAble(_explosions);
+			checkRemoveAble(_cars);
+			checkRemoveAble(_citys);
+			
+			createExplosionOnRemoveable(_playerMissiles);
+			createExplosionOnRemoveable(_enemyMissiles);
 		}
 		//check arrays for hittest etc.
-		private function checkArray(currentArray:Array, explodeAble:Boolean, hitAble:Boolean, updateAble:Boolean ):void
+		//to do for diffirent projects: dispatch event with e.target
+		private function updateArray(currentArray:Array):void
+		{
+			var arrayLength:int = currentArray.length;
+			for( var i:int = arrayLength - 1; i >= 0; i-- )
+			{
+				currentArray[i].Update();
+			}
+		}
+		private function checkRemoveAble(currentArray:Array):void
+		{
+			var arrayLength:int = currentArray.length;
+			for( var i:int = arrayLength - 1; i >= 0; i-- )
+			{
+				if (currentArray[i].removeable) 
+				{
+					removeChild(currentArray[i]);
+					currentArray.splice(i, 1);
+					if (currentArray == _citys && _citys.length == 0)
+					{
+						loseGame();
+					}
+				}
+			}
+		}
+		private function collisionHitTest(currentArray:Array):void
 		{
 			var arrayLength:int = currentArray.length;
 			var explosionLength:int = _explosions.length;
 			for( var i:int = arrayLength - 1; i >= 0; i-- )
 			{
-				if (updateAble)
+				for (var j:int = 0; j < explosionLength; j++) 
 				{
-					currentArray[i].Update();
-				}
-				if (hitAble)
-				{
-					for (var j:int = 0; j < explosionLength; j++) 
+					if (_explosions[j].hitTestObject(currentArray[i]))
 					{
-						if (_explosions[j].hitTestObject(currentArray[i]))
-						{
-							currentArray[i].removeable = true;
-						}
+						currentArray[i].removeable = true;
 					}
-					
 				}
+			}
+		}
+		private function createExplosionOnRemoveable(currentArray:Array):void
+		{
+			var arrayLength:int = currentArray.length;
+			for( var i:int = arrayLength - 1; i >= 0; i-- )
+			{
 				if (currentArray[i].removeable) 
 				{
-					if (explodeAble)
+					_explosionFactory.createExplosion(currentArray[i].x, currentArray[i].y, _explosions, this);
+					SoundManager.playSound(SoundManager.SOUND_EXPLOSION);
+					
+					if (currentArray == _enemyMissiles)
 					{
-						_explosionFactory.createExplosion(currentArray[i].x, currentArray[i].y, _explosions, this);
-						SoundManager.playSound(SoundManager.SOUND_EXPLOSION);
+						_score += currentArray[i].score;
+						_hud.updateText(_wave, _score);
 					}
+					
 					removeChild(currentArray[i]);
 					currentArray.splice(i, 1);
 					
-					if (currentArray == _citys && _citys.length == 0)
-					{
-						loseGame();
-					}
 					if (currentArray == _enemyMissiles && currentArray.length == 0)
 					{
-						_score += 100;
-						_wave += 1;
-						_enemyMissiles = MissileFactory.createMissiles(30, MissileFactory.ENEMY_MISSILE, this);
-						_playerMissiles = MissileFactory.createMissiles(45, MissileFactory.FRIENDLY_MISSILE, this);
+						nextWave();
 					}
 				}
+			}
+		}
+		private function nextWave():void
+		{
+			var random:int = Math.random() * 3;
+			_score += 100;
+			_wave += 1;
+			_hud.updateText(_wave, _score);
+			clearPlayerMissiles();
+			var missileFactory:MissileFactory = new MissileFactory;
+			var enemyMissileFactory:EnemyMissileFactory = new EnemyMissileFactory;
+			_playerMissiles = missileFactory.createMissiles(45, MissileFactory.FRIENDLY_MISSILE, this);
+			if (_wave == 1)
+			{
+				_enemyMissiles = enemyMissileFactory.createMissiles(15, EnemyMissileFactory.FAST_MISSILE, this);
+			} else if(_wave == 2) {
+				_enemyMissiles = enemyMissileFactory.createMissiles(35, EnemyMissileFactory.BIG_MISSILE, this);
+			} else if (_wave == 3) {
+				_enemyMissiles = enemyMissileFactory.createMissiles(25, EnemyMissileFactory.FAST_MISSILE, this);
+			} else if (_wave == 4) {
+				_enemyMissiles = enemyMissileFactory.createMissiles(35, EnemyMissileFactory.FAST_MISSILE, this);
+			} else {
+				switch(random)
+				{
+					case 0:
+						_enemyMissiles = enemyMissileFactory.createMissiles(_wave * 5, EnemyMissileFactory.NORMAL_MISSILE, this);
+						break;
+					case 1:
+						_enemyMissiles = enemyMissileFactory.createMissiles(_wave * 5, EnemyMissileFactory.BIG_MISSILE, this);
+						break;
+					case 2:
+						_enemyMissiles = enemyMissileFactory.createMissiles(_wave * 5, EnemyMissileFactory.FAST_MISSILE, this);
+						break;
+					default:
+						_enemyMissiles = enemyMissileFactory.createMissiles(_wave * 5, EnemyMissileFactory.NORMAL_MISSILE, this);
+						break;
+				}
+			}
+		}
+		private function clearPlayerMissiles():void
+		{
+			var playerMissilesLength:int = _playerMissiles.length;
+			for( var i:int = playerMissilesLength - 1; i >= 0; i-- )
+			{
+				removeChild(_playerMissiles[i]);
+				_playerMissiles.splice(i, 1);
 			}
 		}
 		private function mouseClicked(e:MouseEvent):void 
@@ -128,9 +219,16 @@ package game
 		}
 		private function loseGame():void
 		{
-			trace("you lost");
-			trace(_score);
+			var highScore:SharedObject = SharedObject.getLocal("highScore");
+			if (_score > highScore.data.score)
+			{
+				highScore.data.score = _score;
+				highScore.flush();
+			}
+			_soundManager.stopBackgroundMusic();
 			removeEventListener(Event.ENTER_FRAME, loop);
+			stage.removeEventListener(MouseEvent.CLICK, mouseClicked);
+			_loseMenu.visible = true;
 		}
 	}
 }

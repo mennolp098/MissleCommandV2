@@ -12,6 +12,7 @@ package objects.missiles
 	{
 		protected var movieClip:MovieClip;
 		protected var speed:Number;
+		public var score:Number;
 		public var movePoint:Point;
 		public var removeable:Boolean;
 		public var active:Boolean;
